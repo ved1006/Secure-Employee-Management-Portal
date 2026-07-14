@@ -67,27 +67,6 @@ management/
 
 ---
 
-## 🔌 API Endpoints
-
-### Authentication
-- `POST /auth/register` - Register a new user (`RegisterRequestDTO`)
-- `POST /auth/login` - Login with credentials (`LoginRequestDTO`) -> returns JWT token
-
-### Employees
-- `GET /employees` - Retrieve all employees
-- `GET /employees/{id}` - Retrieve a specific employee by ID
-- `POST /employees` - Create a new employee record (`EmployeeRequestDTO`)
-- `PUT /employees/{id}` - Update an employee record by ID (`EmployeeRequestDTO`)
-- `DELETE /employees/{id}` - Remove an employee record by ID
-
-### Departments
-- `GET /departments` - Retrieve all departments
-- `GET /departments/{deptId}` - Retrieve a specific department by ID
-- `POST /departments` - Create a new department record (`DepartmentRequestDTO`)
-- `PUT /departments/{deptId}` - Update a department record by ID (`DepartmentRequestDTO`)
-- `DELETE /departments/{deptId}` - Remove a department record by ID
-
----
 
 ## ⚙️ Setup & Installation
 
