@@ -1,0 +1,58 @@
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.next
+pom.xml.versionsBackup
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Logs
+logs/
+*.log
+
+# IDEs and Editors
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.classpath
+.project
+.settings/
+.factorypath
+.springBeans
+.sts4-cache
+.apt_generated
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# Node (Frontend)
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# OS Files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local configuration files
+application-local.properties
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
