@@ -10,6 +10,9 @@ buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
 
+# Database dump
+employeedb.sql
+Screenshot 2026-08-14 014916.png
 # Logs
 logs/
 *.log

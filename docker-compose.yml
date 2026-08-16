@@ -1,0 +1,38 @@
+services:
+
+  mysql:
+    image: mysql:8.4
+    container_name: employee-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: employeedb
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./employeedb.sql:/docker-entrypoint-initdb.d/employeedb.sql
+
+  backend:
+    build: .
+    container_name: employee-backend
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/employeedb
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
+    depends_on:
+      - mysql
+
+  frontend:
+    build: ./frontend
+    container_name: employee-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
