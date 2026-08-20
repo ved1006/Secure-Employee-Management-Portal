@@ -76,14 +76,4 @@ The employee module provides complete employee management functionality for auth
 - Retrieve an employee's own profile
 - Return employee data through DTOs
 
-### Employee Request
-
-Employee creation supports:
-
-```text
-Name
-Email
-Password
-Role
-Department
-Salary
+# Demo Link: https://secure-employee-management.onrender.com
