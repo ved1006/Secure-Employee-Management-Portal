@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { 
   Users, 
   FolderTree, 
@@ -11,7 +12,22 @@ import {
   Loader
 } from 'lucide-react';
 
+
+
 const Dashboard = () => {
+  const {
+  user,
+  isAdmin,
+  isHR,
+  isEmployee
+} = useAuth();
+
+console.log({
+  user,
+  isAdmin,
+  isHR,
+  isEmployee
+});
   const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalEmployees: 0,
@@ -19,9 +35,10 @@ const Dashboard = () => {
     totalPayroll: 0,
     averageSalary: 0,
   });
-  const [recentEmployees, setRecentEmployees] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+const [recentEmployees, setRecentEmployees] = useState([]);
+const [employeeProfile, setEmployeeProfile] = useState(null);
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -29,10 +46,24 @@ const Dashboard = () => {
         setLoading(true);
         setError('');
 
-        const [empResponse, deptResponse] = await Promise.all([
-          api.get('/employees'),
-          api.get('/departments')
-        ]);
+if (isEmployee) {
+  try {
+    const response = await api.get('/employees/me');
+    setEmployeeProfile(response.data);
+  } catch (err) {
+    console.error(err);
+    setError('Could not load your employee profile.');
+  } finally {
+    setLoading(false);
+  }
+
+  return;
+}
+
+const [empResponse, deptResponse] = await Promise.all([
+  api.get('/employees'),
+  api.get('/departments')
+]);
 
         const employees = empResponse.data || [];
         const departments = deptResponse.data || [];
@@ -61,7 +92,7 @@ const Dashboard = () => {
     };
 
     fetchDashboardData();
-  }, []);
+  }, [isEmployee]);
 
   const formatCurrency = (val) => {
     return new Intl.NumberFormat('en-US', {
@@ -79,6 +110,87 @@ const Dashboard = () => {
       </div>
     );
   }
+  if (isEmployee) {
+  return (
+    <div className="space-y-8 animate-fade-in">
+
+      {error && (
+        <div className="p-4 bg-rose-50 border border-rose-100 text-rose-800 rounded-2xl text-sm font-semibold">
+          {error}
+        </div>
+      )}
+
+      <div>
+        <h2 className="text-2xl font-extrabold text-slate-800">
+          My Profile
+        </h2>
+
+        <p className="text-sm text-slate-400 mt-1">
+          View your employee information
+        </p>
+      </div>
+
+      {employeeProfile && (
+        <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-8">
+
+          <div className="flex items-center gap-5 pb-6 border-b border-slate-100">
+
+            <div className="h-16 w-16 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl font-bold">
+              {employeeProfile.name?.charAt(0).toUpperCase()}
+            </div>
+
+            <div>
+              <h3 className="text-xl font-extrabold text-slate-800">
+                {employeeProfile.name}
+              </h3>
+
+              <p className="text-sm text-slate-400">
+                {user?.email}
+              </p>
+            </div>
+
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+
+            <div className="bg-slate-50 rounded-2xl p-5">
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                Department
+              </p>
+
+              <p className="mt-2 text-lg font-bold text-slate-800">
+                {employeeProfile.departmentName || 'Unassigned'}
+              </p>
+            </div>
+
+            <div className="bg-slate-50 rounded-2xl p-5">
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                Salary
+              </p>
+
+              <p className="mt-2 text-lg font-bold text-slate-800">
+                {formatCurrency(employeeProfile.salary)}
+              </p>
+            </div>
+
+            <div className="bg-slate-50 rounded-2xl p-5">
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                Role
+              </p>
+
+              <p className="mt-2 text-lg font-bold text-slate-800">
+                {user?.role}
+              </p>
+            </div>
+
+          </div>
+
+        </div>
+      )}
+
+    </div>
+  );
+}
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -114,6 +226,7 @@ const Dashboard = () => {
         </div>
 
         {/* Total Payroll */}
+        {isAdmin && (
         <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between group hover:shadow-md transition-all duration-350 hover:-translate-y-0.5">
           <div className="space-y-2">
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Payroll</p>
@@ -123,8 +236,9 @@ const Dashboard = () => {
             <DollarSign className="h-6 w-6" />
           </div>
         </div>
-
+        )}  
         {/* Avg Salary */}
+         {isAdmin && (
         <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between group hover:shadow-md transition-all duration-350 hover:-translate-y-0.5">
           <div className="space-y-2">
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Average Salary</p>
@@ -134,6 +248,7 @@ const Dashboard = () => {
             <TrendingUp className="h-6 w-6" />
           </div>
         </div>
+         )}
       </div>
 
       {/* Main Content Grid */}
@@ -154,7 +269,7 @@ const Dashboard = () => {
             </button>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-slate-100">
+         <div className="overflow-x-auto rounded-2xl border border-slate-100">
             <table className="min-w-full divide-y divide-slate-100">
               <thead className="bg-slate-50">
                 <tr>
@@ -222,6 +337,22 @@ const Dashboard = () => {
                 </div>
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </button>
+              {isAdmin && (
+  <button
+    onClick={() => navigate('/users')}
+    className="w-full flex items-center justify-between p-4 rounded-2xl bg-violet-50 border border-violet-100/50 hover:bg-violet-100 text-violet-900 transition-colors font-bold text-sm text-left group cursor-pointer"
+  >
+    <div className="flex items-center gap-3">
+      <div className="h-9 w-9 rounded-xl bg-violet-600 text-white flex items-center justify-center shadow-md shadow-violet-600/10">
+        <Users className="h-5 w-5" />
+      </div>
+
+      <span>Manage Users</span>
+    </div>
+
+    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+  </button>
+)}
             </div>
           </div>
         </div>

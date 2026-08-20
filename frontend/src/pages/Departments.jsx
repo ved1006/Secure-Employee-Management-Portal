@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import api from '../services/api';
 import Modal from '../components/Modal';
+import { useAuth } from '../context/AuthContext';
 import { 
   FolderTree, 
   Plus, 
@@ -14,6 +15,7 @@ import {
 } from 'lucide-react';
 
 const Departments = () => {
+  const { isAdmin, isHR } = useAuth();
   const location = useLocation();
   const [departments, setDepartments] = useState([]);
   const [employees, setEmployees] = useState([]);
@@ -167,6 +169,7 @@ const Departments = () => {
           <h2 className="text-xl font-extrabold text-slate-800">Departments Directory</h2>
           <p className="text-xs text-slate-400">Organize and manage employee teams and departments</p>
         </div>
+        {(isAdmin || isHR) && (
         <button
           onClick={() => {
             setDeptName('');
@@ -178,6 +181,7 @@ const Departments = () => {
           <Plus className="h-4.5 w-4.5" />
           <span>Add Department</span>
         </button>
+        )}
       </div>
 
       {error && (
@@ -217,6 +221,7 @@ const Departments = () => {
                     </div>
                     {/* Quick action buttons */}
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {(isAdmin || isHR) && (
                       <button
                         onClick={() => openEditModal(dept)}
                         className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-slate-50 transition-colors cursor-pointer"
@@ -224,6 +229,8 @@ const Departments = () => {
                       >
                         <Edit2 className="h-4 w-4" />
                       </button>
+                      )}
+                      {isAdmin && (
                       <button
                         onClick={() => openDeleteModal(dept)}
                         className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-slate-50 transition-colors cursor-pointer"
@@ -231,6 +238,7 @@ const Departments = () => {
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
+                      )}
                     </div>
                   </div>
                   <h3 className="font-extrabold text-slate-800 text-lg group-hover:text-indigo-600 transition-colors">

@@ -59,3 +59,8 @@ application-local.properties
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Project documentation - local only
+DEPLOYMENT AND DOCKERIZATION.pdf
+Employee_Management_RBAC_Implementation_Interview_Guide
+Features.txt

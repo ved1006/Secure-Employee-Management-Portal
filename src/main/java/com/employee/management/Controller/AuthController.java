@@ -8,6 +8,8 @@ import com.employee.management.dto.LoginRequestDTO;
 import com.employee.management.dto.LoginResponseDTO;
 import com.employee.management.dto.RegisterRequestDTO;
 import com.employee.management.dto.RegisterResponseDTO;
+import org.springframework.security.core.Authentication;
+import com.employee.management.dto.ChangePasswordDTO;
 
 import jakarta.validation.Valid;
 
@@ -34,4 +36,22 @@ public class AuthController {
 
         return authService.login(dto);
     }
+@PostMapping("/change-password")
+@ResponseStatus(HttpStatus.OK)
+public String changePassword(
+        @Valid @RequestBody ChangePasswordDTO dto,
+        Authentication authentication) {
+
+    String email = authentication.getName();
+
+    authService.changePassword(
+            email,
+            dto.getCurrentPassword(),
+            dto.getNewPassword(),
+            dto.getConfirmPassword()
+    );
+
+    return "Password changed successfully.";
+}
+    
 }

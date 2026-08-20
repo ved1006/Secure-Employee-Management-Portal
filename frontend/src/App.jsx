@@ -7,7 +7,11 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Employees from './pages/Employees';
 import Departments from './pages/Departments';
-
+import RoleRoute from './components/RoleRoute';
+import Users from './pages/Users';
+import Announcements from './pages/Announcements';
+import MyLeaves from './pages/MyLeaves';
+import LeaveRequests from './pages/LeaveRequests';
 // Helper component to restrict access to authenticated users
 const PublicRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -49,13 +53,28 @@ function App() {
               </PublicRoute>
             } 
           />
+      //protected routes only **
+       <Route path="/" element={<Layout />}>
+  <Route index element={<Dashboard />} />
+  <Route path="announcements" element={<Announcements />} />
 
-          {/* Protected Routes inside Layout */}
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="employees" element={<Employees />} />
-            <Route path="departments" element={<Departments />} />
-          </Route>
+  {/* EMPLOYEE */}
+  <Route element={<RoleRoute allowedRoles={['EMPLOYEE']} />}>
+    <Route path="my-leaves" element={<MyLeaves />} />
+  </Route>
+
+  {/* ADMIN + HR */}
+  <Route element={<RoleRoute allowedRoles={['ADMIN', 'HR']} />}>
+    <Route path="employees" element={<Employees />} />
+    <Route path="departments" element={<Departments />} />
+    <Route path="leave-requests" element={<LeaveRequests />} />
+  </Route>
+
+  {/* ADMIN ONLY */}
+  <Route element={<RoleRoute allowedRoles={['ADMIN']} />}>
+    <Route path="users" element={<Users />} />
+  </Route>
+</Route>
 
           {/* Catch-all Route redirecting to Dashboard */}
           <Route path="*" element={<Navigate to="/" replace />} />

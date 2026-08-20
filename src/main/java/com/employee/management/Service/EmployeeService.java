@@ -11,4 +11,5 @@ public interface EmployeeService {
     EmployeeResponseDTO AddEmployee(EmployeeRequestDTO dto);
     void DeleteEmployee(int id);
     EmployeeResponseDTO updateEmployeeById(int id,EmployeeRequestDTO dto);
+    EmployeeResponseDTO getMyEmployee(String email);
 }   

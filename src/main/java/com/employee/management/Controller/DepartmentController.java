@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.employee.management.Service.DepartmentService;
 import com.employee.management.dto.DepartmentRequestDTO;
 import com.employee.management.dto.DepartmentResponseDTO;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/departments")
@@ -27,27 +28,32 @@ public class DepartmentController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     public List<DepartmentResponseDTO> getAllDepartments(){
         return departmentService.getAllDepartments();
     }
 
     @GetMapping("/{deptId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     public DepartmentResponseDTO getDepartmentById(@PathVariable int deptId){
         return departmentService.getDepartmentById(deptId);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     public DepartmentResponseDTO addDepartment(@RequestBody DepartmentRequestDTO department){
         return departmentService.addDepartment(department);
     }
 
     @PutMapping("/{deptId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     public DepartmentResponseDTO updateDepartment(@PathVariable int deptId, @RequestBody DepartmentRequestDTO department){
         return departmentService.updateDepartment(deptId, department);
     }
 
     @DeleteMapping("/{deptId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteDepartment(@PathVariable int deptId){
         departmentService.deleteDepartment(deptId);
     }

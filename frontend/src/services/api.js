@@ -35,6 +35,9 @@ api.interceptors.response.use(
         window.location.href = '/login';
       }
     }
+    if (error.response && error.response.status === 403) {
+  console.error('Access denied: You do not have permission for this action.');
+}
     return Promise.reject(error);
   }
 );

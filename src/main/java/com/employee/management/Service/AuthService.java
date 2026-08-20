@@ -9,4 +9,10 @@ public interface AuthService{
     public RegisterResponseDTO register(RegisterRequestDTO dto);
     
     public LoginResponseDTO login(LoginRequestDTO dto);
+    void changePassword(
+    String email,
+    String currentPassword,
+    String newPassword,
+    String confirmPassword
+);
 }

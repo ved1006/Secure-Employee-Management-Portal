@@ -8,6 +8,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
@@ -22,8 +23,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.employee.management.security.CustomerUserDetailsService;
 import com.employee.management.security.JwtAuthenticationFilter;
 
+
+
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -38,7 +42,7 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
+    }   
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
@@ -69,7 +73,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/auth/**", "/error").permitAll()
                         .anyRequest().authenticated())
 
                 .authenticationProvider(authenticationProvider())

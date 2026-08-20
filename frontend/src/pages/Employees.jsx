@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import Modal from '../components/Modal';
+
 import { 
   Users, 
   Plus, 
@@ -16,6 +18,7 @@ import {
 } from 'lucide-react';
 
 const Employees = () => {
+  const { isAdmin, isHR } = useAuth();
   const location = useLocation();
   const [employees, setEmployees] = useState([]);
   const [departments, setDepartments] = useState([]);
@@ -32,9 +35,12 @@ const Employees = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // Form states
-  const [name, setName] = useState('');
-  const [salary, setSalary] = useState('');
-  const [departmentId, setDepartmentId] = useState('');
+const [name, setName] = useState('');
+const [email, setEmail] = useState('');
+const [password, setPassword] = useState('');
+const [role, setRole] = useState('EMPLOYEE');
+const [salary, setSalary] = useState('');
+const [departmentId, setDepartmentId] = useState('');
   const [selectedEmp, setSelectedEmp] = useState(null);
   const [formError, setFormError] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
@@ -66,37 +72,58 @@ const Employees = () => {
   };
 
   // Add Employee
-  const handleAddSubmit = async (e) => {
-    e.preventDefault();
-    setFormError('');
+const handleAddSubmit = async (e) => {
+  e.preventDefault();
+  setFormError('');
 
-    if (!name.trim() || !salary || !departmentId) {
-      setFormError('All fields are required.');
-      return;
-    }
+  if (
+    !name.trim() ||
+    !email.trim() ||
+    !password ||
+    !role ||
+    !salary ||
+    !departmentId
+  ) {
+    setFormError('All fields are required.');
+    return;
+  }
 
-    if (isNaN(salary) || parseFloat(salary) <= 0) {
-      setFormError('Please enter a valid salary amount.');
-      return;
-    }
+  if (isNaN(salary) || parseFloat(salary) <= 0) {
+    setFormError('Please enter a valid salary amount.');
+    return;
+  }
 
-    setActionLoading(true);
-    try {
-      const response = await api.post('/employees', {
-        name,
-        salary: parseFloat(salary),
-        departmentId: parseInt(departmentId)
-      });
-      // Refresh list to pull correct department association
-      await fetchData();
-      setIsAddModalOpen(false);
-      resetForm();
-    } catch (err) {
-      setFormError(err.response?.data?.message || 'Failed to add employee.');
-    } finally {
-      setActionLoading(false);
-    }
-  };
+  if (password.length < 8) {
+    setFormError('Password must be at least 8 characters long.');
+    return;
+  }
+
+  setActionLoading(true);
+
+  try {
+    await api.post('/employees', {
+      name: name.trim(),
+      email: email.trim(),
+      password,
+      role,
+      salary: parseFloat(salary),
+      departmentId: parseInt(departmentId)
+    });
+
+    await fetchData();
+
+    setIsAddModalOpen(false);
+    resetForm();
+
+  } catch (err) {
+    setFormError(
+      err.response?.data?.message ||
+      'Failed to add employee.'
+    );
+  } finally {
+    setActionLoading(false);
+  }
+};
 
   // Open Edit Modal
   const openEditModal = (emp) => {
@@ -167,13 +194,16 @@ const Employees = () => {
     }
   };
 
-  const resetForm = () => {
-    setName('');
-    setSalary('');
-    setDepartmentId('');
-    setSelectedEmp(null);
-    setFormError('');
-  };
+const resetForm = () => {
+  setName('');
+  setEmail('');
+  setPassword('');
+  setRole('EMPLOYEE');
+  setSalary('');
+  setDepartmentId('');
+  setSelectedEmp(null);
+  setFormError('');
+};
 
   const formatCurrency = (val) => {
     return new Intl.NumberFormat('en-US', {
@@ -207,6 +237,7 @@ const Employees = () => {
           <h2 className="text-xl font-extrabold text-slate-800">Employee Directory</h2>
           <p className="text-xs text-slate-400">View, search, and manage corporate employee information</p>
         </div>
+        {(isAdmin || isHR) && (
         <button
           onClick={() => {
             resetForm();
@@ -221,6 +252,7 @@ const Employees = () => {
           <Plus className="h-4.5 w-4.5" />
           <span>Add Employee</span>
         </button>
+        )}
       </div>
 
       {error && (
@@ -293,6 +325,7 @@ const Employees = () => {
                     </td>
                     <td className="px-6 py-4 text-right text-sm">
                       <div className="flex items-center justify-end gap-1.5">
+                        {(isAdmin || isHR) && (
                         <button
                           onClick={() => openEditModal(emp)}
                           className="p-2 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-slate-50 transition-colors cursor-pointer"
@@ -300,6 +333,8 @@ const Employees = () => {
                         >
                           <Edit2 className="h-4.5 w-4.5" />
                         </button>
+                        )}
+                        {isAdmin && (
                         <button
                           onClick={() => openDeleteModal(emp)}
                           className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-slate-50 transition-colors cursor-pointer"
@@ -307,6 +342,7 @@ const Employees = () => {
                         >
                           <Trash2 className="h-4.5 w-4.5" />
                         </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -346,7 +382,52 @@ const Employees = () => {
               className="block w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium text-sm"
             />
           </div>
+            <div>
+  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+    Email Address
+  </label>
 
+  <input
+    type="email"
+    required
+    placeholder="employee@company.com"
+    value={email}
+    onChange={(e) => setEmail(e.target.value)}
+    className="block w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium text-sm"
+  />
+</div>
+
+<div>
+  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+    Temporary Password
+  </label>
+
+  <input
+    type="password"
+    required
+    placeholder="Enter temporary password"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    className="block w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium text-sm"
+  />
+</div>
+
+<div>
+  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+    Role
+  </label>
+
+  <select
+    required
+    value={role}
+    onChange={(e) => setRole(e.target.value)}
+    className="block w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-semibold text-sm cursor-pointer"
+  >
+    <option value="EMPLOYEE">Employee</option>
+    <option value="HR">HR</option>
+    <option value="ADMIN">Admin</option>
+  </select>
+</div>
           <div>
             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
               Salary (USD / Annual)

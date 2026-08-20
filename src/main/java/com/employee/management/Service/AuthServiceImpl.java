@@ -11,7 +11,8 @@ import com.employee.management.dto.LoginResponseDTO;
 import com.employee.management.dto.RegisterRequestDTO;
 import com.employee.management.dto.RegisterResponseDTO;
 import com.employee.management.security.JwtService;
-
+import com.employee.management.exception.BadRequestException;
+import com.employee.management.exception.ResourceNotFoundException;
 @Service
 public class AuthServiceImpl implements AuthService{
 
@@ -26,15 +27,21 @@ public class AuthServiceImpl implements AuthService{
 
     @Override
     public RegisterResponseDTO register(RegisterRequestDTO dto){
-        if(!dto.getPassword().equals(dto.getConfirmPassword())){
-            throw new RuntimeException("the passwords don't match");
-        }
-        if(userRepository.existsByUsername(dto.getUsername())){
-            throw new RuntimeException("the username already exists, please create a unique username");
-        }
-        if(userRepository.existsByEmail(dto.getEmail())){
-            throw new RuntimeException("email allready exists, kindly login");
-        }
+   if (!dto.getPassword().equals(dto.getConfirmPassword())) {
+    throw new BadRequestException("Passwords do not match.");
+}
+
+if (userRepository.existsByUsername(dto.getUsername())) {
+    throw new BadRequestException(
+        "Username already exists. Please choose another username."
+    );
+}
+
+if (userRepository.existsByEmail(dto.getEmail())) {
+    throw new BadRequestException(
+        "Email already exists. Please login."
+    );
+}
         String pass = passwordEncoder.encode(dto.getPassword());
 
         RegisterResponseDTO response = new RegisterResponseDTO();
@@ -42,7 +49,7 @@ public class AuthServiceImpl implements AuthService{
         user.setEmail(dto.getEmail());
         user.setUsername(dto.getUsername());
         user.setPassword(pass);
-        user.setRole(Role.Employee);
+        user.setRole(Role.EMPLOYEE);
         user.setEnabled(true); //do email verification
         User savedUser = userRepository.save(user);
 
@@ -79,5 +86,39 @@ public LoginResponseDTO login(LoginRequestDTO dto) {
     response.setRole(user.getRole());
 
     return response;
+}
+@Override
+public void changePassword(
+        String email,
+        String currentPassword,
+        String newPassword,
+        String confirmPassword) {
+
+    User user = userRepository.findByEmail(email)
+            .orElseThrow(() ->
+                    new RuntimeException("User not found."));
+
+    if (!passwordEncoder.matches(
+            currentPassword,
+            user.getPassword())) {
+
+        throw new RuntimeException(
+                "Current password is incorrect.");
+    }
+
+    if (currentPassword.equals(newPassword)) {
+        throw new RuntimeException(
+                "New password must be different from current password.");
+    }
+
+    if (!newPassword.equals(confirmPassword)) {
+        throw new RuntimeException(
+                "New passwords do not match.");
+    }
+
+    user.setPassword(
+            passwordEncoder.encode(newPassword));
+
+    userRepository.save(user);
 }
 }
