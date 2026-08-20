@@ -1,136 +1,89 @@
-# Secure Employee Management Portal
+# Employee Management System
 
-A full-stack, secure web application for managing employees and departments within an organization. Built using **Spring Boot 3** for a robust and secure REST API backend, and **React 19** with **Vite** and **Tailwind CSS v4** for a modern, responsive, and interactive user interface.
+A full-stack **Employee Management System** built with **React, Spring Boot, Spring Security, JWT, JPA/Hibernate, and MySQL**. The application provides secure role-based access control, employee and department management, user administration, announcements, and a complete employee leave-management workflow.
+
+The project is also **Dockerized and deployed to the cloud**, using Nginx as a reverse proxy, Render for application hosting, and Aiven MySQL for the production database.
 
 ---
 
 ## 🚀 Features
 
-- **JWT-Based Authentication**: Secure registration and login flow issuing JSON Web Tokens.
-- **Role-Based Access Control (RBAC)**: Restricts API endpoints and views based on roles (e.g., ADMIN, EMPLOYEE).
-- **Employee Management**: CRUD operations to add, view, update, and remove employee records.
-- **Department Management**: Organize employees into departments with full CRUD capability.
-- **Modern Responsive UI**: Clean, dynamic UI featuring state preservation and route protection.
+### 🔐 Authentication & Security
+
+- User registration
+- User login
+- JWT-based authentication
+- Stateless authentication using Spring Security
+- BCrypt password hashing
+- Custom JWT authentication filter
+- Spring Security `SecurityContext`
+- Protected REST APIs
+- Role-based authorization 
+- Enabled/disabled user accounts
+- Logout functionality
+- Automatic JWT attachment to API requests
+- Secure password storage
+- Environment-based JWT configuration
 
 ---
 
-## 🛠️ Tech Stack
+## 🛡️ Role-Based Access Control
 
-### Backend
-- **Core Framework**: Spring Boot 3.5.x & Java 17
-- **Security**: Spring Security 6 & JSON Web Token (JWT)
-- **Data Access**: Spring Data JPA & Hibernate
-- **Database**: MySQL
-- **Developer Tools**: Lombok & Spring Boot DevTools
+The application supports three roles:
 
-### Frontend
-- **Framework**: React 19 (Vite)
-- **Styling**: Tailwind CSS v4
-- **API Client**: Axios (with interceptors for adding Auth headers & handling 401s)
-- **Routing**: React Router DOM
+- `ADMIN`
+- `HR`
+- `EMPLOYEE`
+
+Authorization is enforced on the **backend using Spring Security**, while the frontend uses role-aware routing and navigation for a better user experience.
+
+| Functionality | ADMIN | HR | EMPLOYEE |
+|---|:---:|:---:|:---:|
+| View Employees | ✅ | ✅ | ❌ |
+| Add Employee | ✅ | ✅ | ❌ |
+| Update Employee | ✅ | ✅ | ❌ |
+| Delete Employee | ✅ | ❌ | ❌ |
+| View Employee by ID | ✅ | ✅ | ❌ |
+| Manage Departments | ✅ | ✅ | ❌ |
+| Manage Users | ✅ | ❌ | ❌ |
+| Update User Role | ✅ | ❌ | ❌ |
+| Enable/Disable Users | ✅ | ❌ | ❌ |
+| View Own Employee Profile | ❌ | ❌ | ✅ |
+| Submit Leave Request | ❌ | ❌ | ✅ |
+| View Own Leave Requests | ❌ | ❌ | ✅ |
+| View Leave Requests | ✅ | ✅ | ❌ |
+| Approve Leave | ✅ | ✅ | ❌ |
+| Reject Leave | ✅ | ✅ | ❌ |
+| View Announcements | ✅ | ✅ | ✅ |
 
 ---
 
-## 📁 Folder Structure
+# 👥 Employee Management
+
+The employee module provides complete employee management functionality for authorized ADMIN and HR users.
+
+### Functionality
+
+- Create employees
+- View all employees
+- View individual employees
+- Update employee information
+- Delete employees
+- Assign departments
+- Assign application roles
+- Create employee login accounts
+- Secure employee passwords using BCrypt
+- Retrieve an employee's own profile
+- Return employee data through DTOs
+
+### Employee Request
+
+Employee creation supports:
 
 ```text
-management/
-├── .mvn/                       # Maven wrapper configuration
-├── frontend/                   # Frontend React Application
-│   ├── public/                 # Static assets
-│   ├── src/
-│   │   ├── components/         # Reusable UI components
-│   │   ├── context/            # Auth and State contexts
-│   │   ├── pages/              # Page components (Login, Dashboard, etc.)
-│   │   ├── services/           # Axios API services
-│   │   ├── App.jsx             # Main router and app layout
-│   │   ├── index.css           # Styling entry point
-│   │   └── main.jsx            # React root mount
-│   ├── package.json
-│   └── vite.config.js
-├── src/                        # Backend Spring Boot Application
-│   ├── main/
-│   │   ├── java/com/employee/management/
-│   │   │   ├── Controller/     # REST Endpoints
-│   │   │   ├── Model/          # Entities (Employee, Department, User)
-│   │   │   ├── Repository/     # JPA Repositories
-│   │   │   ├── Service/        # Business Logic
-│   │   │   ├── config/         # Security configuration
-│   │   │   ├── dto/            # Data Transfer Objects
-│   │   │   └── security/       # JWT Service & Filter
-│   │   └── resources/
-│   │       ├── application.properties        # Main properties file (with placeholders)
-│   │       └── application-local.properties  # Local secrets (ignored by Git)
-├── pom.xml                     # Maven project specification
-└── README.md                   # Project documentation
-```
-
----
-
-
-## ⚙️ Setup & Installation
-
-### Prerequisites
-- **Java**: JDK 17 or higher
-- **Node.js**: v18 or higher & npm
-- **Database**: MySQL Server running locally
-
-### Database Setup
-1. Log in to your MySQL terminal or client.
-2. Create a new database named `employeedb`:
-   ```sql
-   CREATE DATABASE employeedb;
-   ```
-
-### Backend Configuration
-1. Open the project root.
-2. Navigate to `src/main/resources/`.
-3. Create a file named `application-local.properties` (this is ignored by git) and add your database and JWT credentials:
-   ```properties
-   spring.datasource.password=your_mysql_password
-   jwt.secret=your_super_secret_jwt_key_containing_at_least_256_bits
-   ```
-4. Adjust the MySQL username in the main `application.properties` file if your local username is not `root`.
-
-### Run Backend
-Navigate to the root directory and execute:
-```bash
-# Windows
-.\mvnw.cmd spring-boot:run
-
-# Linux / macOS
-chmod +x mvnw
-./mvnw spring-boot:run
-```
-The server will start on port `8080`.
-
-### Run Frontend
-1. Navigate to the `frontend/` directory:
-   ```bash
-   cd frontend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-The frontend will start and can be accessed at `http://localhost:5173`. All backend API calls via `/api` are automatically proxied to `http://localhost:8080`.
-
----
-
-## 📸 Screenshots
-
-*(Placeholders - Add screenshots of the Login, Employee Dashboard, and Department management panels here)*
-
----
-
-## 🔮 Future Improvements
-
-- **Pagination & Sorting**: Implement database pagination and filtering on the employee listings.
-- **Audit Logging**: Maintain history of changes (creation, updates, deletion) to employees and departments.
-- **Enhanced Verification**: Add unit and integration tests using Mockito and Spring Boot Test.
-- **CI/CD Pipeline**: Setup GitHub Actions for automated build and test runs.
-- **Docker Support**: Add a `Dockerfile` and `docker-compose.yml` for seamless multi-container deployment.
+Name
+Email
+Password
+Role
+Department
+Salary
